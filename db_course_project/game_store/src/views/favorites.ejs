@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorites</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Favorites</h1>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+            <tr class="table-row table-header">
+                <td><h3>Id</h3></td>
+                <td><h3>Title</h3></td>
+                <td><h3>Description</h3></td>
+                <td><h3>Price</h3></td>
+                <td><h3>Action</h3></td>
+            </tr>
+            </thead>
+            <tbody>
+            <% if (favoriteGames.length > 0) { %>
+                <% favoriteGames.forEach((game, index) => { %>
+                    <tr class="table-row" id="<%= index %>">
+                        <td><%= game.game_id %></td>
+                        <td><%= game.title %></td>
+                        <td><%= game.description %></td>
+                        <td>$<%= game.price %></td>
+                        <td>
+                            <a href="/favorites/removeFromFavorites?game_id=<%= game.game_id %>&user_id=<%= user_id %>"  class="add-game-button">Remove</a>
+                        </td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5">Your favorites list is empty.</td>
+                </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    // Анимация появления строк
+    document.addEventListener("DOMContentLoaded", function() {
+        const rows = document.querySelectorAll('.table-row');
+        rows.forEach((row, index) => {
+            setTimeout(() => {
+                row.classList.add('show-row');
+            }, index * 10);
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!-- views/updateGameForm.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Game</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+<div class="container form-container">
+<h1>Update Game</h1>
+
+<form id="updateGameForm" action="/updateGame" method="POST">
+    <label for="gameId">Game ID:</label>
+    <input type="text" id="gameId" name="gameId" value="<%= game ? game.gameId : '' %>" required readonly>
+
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" value="<%= game ? game.title : '' %>" required>
+
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" required><%= game ? game.description : '' %></textarea>
+
+    <label for="price">Price:</label>
+    <input type="text" id="price" name="price" pattern="\d+(.\d{1,2})?" title="Enter a valid price format" value="<%= game ? game.price : '' %>" required>
+
+    <button type="submit" class = "add-game-button">Update Game</button>
+
+</form>
+</div>
+
+<script>
+    // Извлекаем параметры из URL
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Функция для обновления данных формы из параметров URL
+    function updateFormFromUrl() {
+        document.getElementById('gameId').value = urlParams.get('gameId') || '';
+        document.getElementById('title').value = urlParams.get('title') || '';
+        document.getElementById('description').value = urlParams.get('description') || '';
+        document.getElementById('price').value = urlParams.get('price') || '';
+    }
+    // Вызов функции при загрузке страницы
+    window.onload = function() {
+        updateFormFromUrl();
+    };
+</script>
+</body>
+</html>

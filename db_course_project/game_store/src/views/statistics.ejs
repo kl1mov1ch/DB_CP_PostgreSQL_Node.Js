@@ -1,0 +1,53 @@
+<!-- views/statistics.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Statistics</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Sales Statistics</h1>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+            <tr class="table-row table-header">
+                <td><h3>Statistic ID</h3></td>
+                <td><h3>Game ID</h3></td>
+                <td><h3>Quantity Sold</h3></td>
+                <td><h3>Total Revenue</h3></td>
+                <td><h3>Last Sales Date</h3></td>
+            </tr>
+            </thead>
+            <tbody>
+            <% salesStatistics.forEach((statistic, index) => { %>
+                <tr class="table-row" id="<%= index %>">
+                    <td><%= statistic.statistic_id %></td>
+                    <td><%= statistic.game_id %></td>
+                    <td><%= statistic.quantity_sold %></td>
+                    <td>$<%= statistic.total_revenue %></td>
+                    <td><%= statistic.sales_date %></td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Анимация появления строк
+    document.addEventListener("DOMContentLoaded", function() {
+        const rows = document.querySelectorAll('.table-row');
+        rows.forEach((row, index) => {
+            setTimeout(() => {
+                row.classList.add('show-row');
+            }, index * 10);
+        });
+    });
+</script>
+
+</body>
+</html>

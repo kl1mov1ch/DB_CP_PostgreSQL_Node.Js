@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Shopping Cart</h1>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+            <tr class="table-row table-header">
+                <td><h3>Id</h3></td>
+                <td><h3>Title</h3></td>
+                <td><h3>Description</h3></td>
+                <td><h3>Price</h3></td>
+                <td><h3>Buy</h3></td>
+                <td><h3>Delete</h3></td>
+            </tr>
+            </thead>
+            <tbody>
+            <% if (cartGames.length > 0) { %>
+                <% cartGames.forEach((game, index) => { %>
+                    <tr class="table-row" id="<%= index %>">
+                        <td><%= game.game_id %></td>
+                        <td><%= game.title %></td>
+                        <td><%= game.description %></td>
+                        <td>$<%= game.price %></td>
+                        <td>
+                            <a class="add-game-button" href="javascript:void(0);" class="buy-button" onclick="buyNow('<%= game.game_id %>', '<%= user_id %>')">Buy Now</a>
+                        </td>
+                        <td>
+                            <a class="add-game-button" href="/cart/removeFromCart?game_id=<%= game.game_id %>&user_id=<%= user_id %>" class="remove-button">Remove</a>
+                        </td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5">Your cart is empty.</td>
+                </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+    <a href="/gamesUser?user_id=<%= user_id %>" class="add-game-button">Back to Games</a>
+</div>
+<script>
+    // Анимация появления строк
+    document.addEventListener("DOMContentLoaded", function() {
+        const rows = document.querySelectorAll('.table-row');
+        rows.forEach((row, index) => {
+            setTimeout(() => {
+                row.classList.add('show-row');
+            }, index * 10);
+        });
+    });
+    function buyNow(gameId, userId) {
+        // Пример использования Fetch API для отправки запроса на сервер
+        fetch('/payments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ game_id: gameId, user_id: userId }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Ваши дополнительные действия после успешной оплаты
+                alert('Payment successful!');
+                // Дополнительные действия, например, обновление интерфейса и т. д.
+            })
+            .catch(error => {
+                console.error('Error processing payment:', error);
+                alert('Payment failed. Please try again.');
+            });
+    }
+</script>
+</body>
+</html>

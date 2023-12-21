@@ -1,0 +1,69 @@
+<!-- views/payments.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+
+<div class="container payment-container">
+    <h1>Payment</h1>
+    <div class="game-info">
+        <h2><%= game.title %></h2>
+        <p><%= game.description %></p>
+        <p>Price: $<%= game.price %></p>
+    </div>
+
+    <form id="paymentForm" action="/payments/<%= game.game_id %>" method="post">
+        <input type="hidden" name="user_id" value="<%= user_id %>">
+        <!-- Дополнительные поля, если необходимо -->
+
+        <button type="button" onclick="processPayment()">Pay Now</button>
+    </form>
+
+    <div id="paymentResult" style="display: none;">
+        <h3>Payment Result</h3>
+        <p>Amount: $<span id="amountPaid"></span></p>
+        <p>Payment Date: <span id="paymentDate"></span></p>
+    </div>
+</div>
+
+<script>
+    function processPayment() {
+        // Пример использования Fetch API для отправки запроса на сервер
+        fetch(`/payments/${game.game_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: <%= user_id %> }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Отображаем результат платежа
+                document.getElementById('amountPaid').textContent = data.amount;
+                document.getElementById('paymentDate').textContent = data.payment_date;
+                document.getElementById('paymentResult').style.display = 'block';
+                document.getElementById('paymentForm').style.display = 'none';
+
+                // Обновление URL
+                const newUrl = `/payments/${game.game_id}?user_id=${user_id}`;
+                history.pushState(null, null, newUrl);
+            })
+            .catch(error => {
+                console.error('Error processing payment:', error);
+                alert('Payment failed. Please try again.');
+            });
+    }
+</script>
+
+</body>
+</html>

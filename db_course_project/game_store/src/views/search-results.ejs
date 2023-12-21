@@ -1,0 +1,70 @@
+<!-- views/search-results.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/styles.css">
+    <title>Search Results</title>
+</head>
+<body>
+<div class="container">
+    <h1>Search Results</h1>
+    <div class="container table-container">
+        <table class="table">
+            <tbody>
+            <tr class="table-row table-header">
+                <td>ID</td>
+                <td>Title</td>
+                <td>Description</td>
+                <td>Price</td>
+            </tr>
+            <% if (searchResults.length > 0) { %>
+                <% searchResults.forEach((game, index) => { %>
+                    <tr class="table-row" id="<%= index %>">
+                        <td><%= game.game_id %></td>
+                        <td><%= game.title %></td>
+                        <td><%= game.description %></td>
+                        <td>$<%= game.price %></td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="4">No results found.</td>
+                </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    // Используем Ajax для отправки запроса на сервер при поиске
+    $(document).ready(function() {
+        $('#searchForm').submit(function(event) {
+            event.preventDefault();
+            searchGames();
+        });
+    });
+
+    // Анимация появления строк
+    document.addEventListener("DOMContentLoaded", function() {
+        const rows = document.querySelectorAll('.table-row');
+        rows.forEach((row, index) => {
+            setTimeout(() => {
+                row.classList.add('show-row');
+            }, index * 50); // Задержка для каждой строки
+        });
+    });
+
+    function searchGames() {
+        const keyword = $('#searchInput').val();
+        $.get(`/searchGames?keyword=${keyword}`, function(data) {
+            // Обновляем результаты поиска без перезагрузки страницы
+            $('.table tbody').html(data);
+        });
+    }
+</script>
+</body>
+</html>

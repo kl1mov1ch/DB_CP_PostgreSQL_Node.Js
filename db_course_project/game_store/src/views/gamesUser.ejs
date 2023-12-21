@@ -1,0 +1,134 @@
+<!-- views/games.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+<h1>User List</h1>
+<input type="text" id="searchInput" name="searchInput" placeholder="Enter keyword">
+<button onclick="searchGames()" class="add-game-button">Search</button>
+<div class="container table-container">
+    <a href="/cart?user_id=<%= user_id %>" class="add-game-button">View Cart</a>
+    <a href="/favorites?user_id=<%= user_id %>" class="add-game-button">Favorites</a>
+
+    <div class="pagination-container">
+    </div>
+</div>
+
+<table class="table">
+    <tbody>
+    <!-- Заголовки в виде стилизованных ячеек данных -->
+    <tr class="table-row table-header">
+        <td><h3>Id</h3></td>
+        <td><h3>Title</h3></td>
+        <td><h3>Description</h3></td>
+        <td><h3>Price</h3></td>
+        <td><h3>Add to Cart</h3></td>
+        <td><h3>Add to Favorites</h3></td>
+    </tr>
+    <% if (games.length > 0) { %>
+        <% games.forEach((game, index) => { %>
+            <tr class="table-row" id="<%= index %>">
+                <td><%= game.game_id %></td>
+                <td><%= game.title %></td>
+                <td><%= game.description %></td>
+                <td>$<%= game.price %></td>
+                <td>
+                    <form action="/cart/add?user_id=<%= user_id %>" method="post"> <!-- Добавлен параметр user_id в URL -->
+                        <input type="hidden" name="game_id" value="<%= game.game_id %>" >
+                        <button type="submit">Add to Cart</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="/favorites/add?user_id=<%= user_id %>" method="post"> <!-- Добавлен параметр user_id в URL -->
+                        <input type="hidden" name="game_id" value="<%= game.game_id %>">
+                        <button type="submit">Add to Favorites</button>
+                    </form>
+                </td>
+            </tr>
+        <% }); %>
+    <% } else { %>
+        <tr>
+            <td colspan="6">No games available.</td>
+        </tr>
+    <% } %>
+    </tbody>
+</table>
+
+</div>
+
+<div class="pagination-container" align="center">
+    <% const maxPagesToShow = 7; %>
+    <% const startPage = Math.max(currentPage - 3, 1); %>
+    <% const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages); %>
+    <% for (let i = startPage; i <= endPage; i++) { %>
+        <a href="/gamesUser?page=<%= i %>&user_id=<%= user_id %>" class="pagination-button <%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+    <% } %>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    // Анимация появления строк
+    document.addEventListener("DOMContentLoaded", function() {
+        const rows = document.querySelectorAll('.table-row');
+        rows.forEach((row, index) => {
+            setTimeout(() => {
+                row.classList.add('show-row');
+            }, index * 10);
+        });
+    });
+
+    // Скрипт для управления видимостью выпадающего меню
+    document.addEventListener("DOMContentLoaded", function() {
+        const dropdownBtn = document.querySelector('.dropbtn');
+        const dropdownContent = document.querySelector('.dropdown-content');
+
+        dropdownBtn.addEventListener('click', function() {
+            dropdownContent.classList.toggle('show');
+        });
+
+        window.addEventListener('click', function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                if (dropdownContent.classList.contains('show')) {
+                    dropdownContent.classList.remove('show');
+                }
+            }
+        });
+    });
+    function searchGames() {
+        const searchInput = document.getElementById('searchInput');
+        const keyword = searchInput.value;
+
+        // Перенаправление на маршрут с поиском
+        window.location.href = `/gamesUser/search?keyword=${encodeURIComponent(keyword)}`;
+    }
+
+    async function addToCart(gameId) {
+        const userId = <%= user_id %>; // Предполагается, что у вас есть переменная user_id в шаблоне
+        const response = await fetch(`/cart/add?user_id=${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ game_id: gameId }),
+        });
+
+        if (response.ok) {
+            // Обновляем URL без перезагрузки страницы
+            const newUrl = `${window.location.pathname}?user_id=${userId}`;
+            history.replaceState(null, null, newUrl);
+
+            // Перенаправляем пользователя на страницу games
+            window.location.href = `/gamesUser?user_id=${userId}`;
+        } else {
+            console.error('Failed to add the game to the cart');
+        }
+    }
+
+</script>
+</body>
+</html>

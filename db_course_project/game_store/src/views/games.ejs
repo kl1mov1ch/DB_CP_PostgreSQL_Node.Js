@@ -1,0 +1,129 @@
+<!-- views/games.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+<h1>Games List</h1>
+<input type="text" id="searchInput" name="searchInput" placeholder="Enter keyword">
+<button onclick="searchGames()" class="add-game-button">Search</button>
+<div class="container table-container">
+    <a href="/addGame" class="add-game-button">Add game</a>
+    <a href="/statistics" class="add-game-button">Sales Statistics</a>
+</div>
+
+<table class="table">
+    <tbody>
+    <!-- Заголовки в виде стилизованных ячеек данных -->
+    <tr class="table-row table-header">
+        <td><h3>Id</h3></td>
+        <td><h3>Title</h3></td>
+        <td><h3>Description</h3></td>
+        <td><h3>Price</h3></td>
+        <td><h3>Update</h3></td>
+        <td><h3>Delete</h3></td>
+    </tr>
+    <% if (games.length > 0) { %>
+        <% games.forEach((game, index) => { %>
+            <tr class="table-row" id="<%= index %>">
+                <td><%= game.game_id %></td>
+                <td><%= game.title %></td>
+                <td><%= game.description %></td>
+                <td>$<%= game.price %></td>
+                <td>
+                    <a href="/updateGame?gameId=<%= game.game_id %>&title=<%= game.title %>&description=<%= game.description %>&price=<%= game.price %>" class="edit-button">Edit</a>
+                </td>
+                <td>
+                    <button onclick="deleteGame(<%= game.game_id %>)" class="delete-button">Delete</button>
+                </td>
+            </tr>
+        <% }); %>
+    <% } else { %>
+        <tr>
+            <td colspan="6">No games available.</td>
+        </tr>
+    <% } %>
+    </tbody>
+</table>
+
+</div>
+
+<div class="pagination-container" align="center">
+    <% const maxPagesToShow = 7; %>
+    <% const startPage = Math.max(currentPage - 3, 1); %>
+    <% const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages); %>
+    <% for (let i = startPage; i <= endPage; i++) { %>
+        <a href="/games?page=<%= i %>&user_id=<%= user_id %>" class="pagination-button <%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+    <% } %>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    // Анимация появления строк
+    document.addEventListener("DOMContentLoaded", function() {
+        const rows = document.querySelectorAll('.table-row');
+        rows.forEach((row, index) => {
+            setTimeout(() => {
+                row.classList.add('show-row');
+            }, index * 10);
+        });
+    });
+    function searchGames() {
+        const searchInput = document.getElementById('searchInput');
+        const keyword = searchInput.value;
+        window.location.href = `/games/search?keyword=${encodeURIComponent(keyword)}`;
+    }
+
+    async function addToCart(gameId) {
+        const userId = <%= user_id %>; // Предполагается, что у вас есть переменная user_id в шаблоне
+        const response = await fetch(`/cart/add?user_id=${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ game_id: gameId }),
+        });
+
+        if (response.ok) {
+            // Обновляем URL без перезагрузки страницы
+            const newUrl = `${window.location.pathname}?user_id=${userId}`;
+            history.replaceState(null, null, newUrl);
+
+            // Перенаправляем пользователя на страницу games
+            window.location.href = `/games?user_id=${userId}`;
+        } else {
+            console.error('Failed to add the game to the cart');
+        }
+    }
+
+    async function deleteGame(gameId) {
+        const userId = <%= user_id %>;
+        const confirmation = confirm('Вы уверены, что хотите удалить эту игру?');
+
+        if (confirmation) {
+            const response = await fetch(`/games/delete?gameId=${gameId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status >= 200 && response.status < 300) {
+                // Успешный ответ
+                const newUrl = `${window.location.pathname}?user_id=${userId}`;
+                history.replaceState(null, null, newUrl);
+                window.location.href = `/games?user_id=${userId}`;
+            } else {
+                console.error('Ошибка при удалении игры:', response.statusText);
+                // Вывести более подробную информацию об ошибке в консоль
+                response.json().then(data => console.error('Дополнительная информация:', data));
+            }
+        }
+    }
+</script>
+</body>
+</html>

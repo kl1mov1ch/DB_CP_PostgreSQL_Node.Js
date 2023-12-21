@@ -1,1 +1,1 @@
-PostgreSQL,Node.js, game-store
+PostgreSQL, Node.js, game-store
